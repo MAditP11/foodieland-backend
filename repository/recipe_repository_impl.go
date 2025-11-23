@@ -14,7 +14,7 @@ type RecipeRepositoryImpl struct{
 
 }
 
-func NewRecipeRepository() RecipeRepository {
+func NewRecipeRepositoryImpl() RecipeRepository {
 	return &RecipeRepositoryImpl{}
 }
 
