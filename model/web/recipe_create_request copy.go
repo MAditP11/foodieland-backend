@@ -1,7 +1,6 @@
 package web
 
 import (
-	"foodieland/model/domain"
 	"time"
 )
 
@@ -12,10 +11,10 @@ type RecipeCreateRequest struct {
 	PrepTime string `json:"prep_time" validate:"required"`
 	CookTime string `json:"cook_time" validate:"required"`
 	Category string `json:"category" validate:"required"`
-	Nutrition domain.Nutrition `json:"nutrition" validate:"required"`
+	Nutrition NutritionRequest `json:"nutrition" validate:"required"`
 	MainDish []string `json:"main_dish" validate:"required"`
 	Sauce []string `json:"sauce" validate:"required"`
-	Directions []domain.Direction `json:"directions" validate:"required"`
+	Directions []DirectionRequest `json:"directions" validate:"required"`
 	IsLike bool `json:"is_like"`
 	Writer string `json:"writer" validate:"required"`
 	CreateAt time.Time `json:"create_at"`

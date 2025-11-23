@@ -1,7 +1,6 @@
 package web
 
 import (
-	"foodieland/model/domain"
 	"time"
 )
 
@@ -13,10 +12,10 @@ type RecipeResponse struct {
 	PrepTime string `json:"prep_time"`
 	CookTime string `json:"cook_time"`
 	Category string `json:"category"`
-	Nutrition domain.Nutrition `json:"nutrition"`
+	Nutrition NutritionResponse `json:"nutrition"`
 	MainDish []string `json:"main_dish"`
 	Sauce []string `json:"sauce"`
-	Directions []domain.Direction `json:"directions"`
+	Directions []DirectionResponse `json:"directions"`
 	IsLike bool `json:"is_like"`
 	Writer string `json:"writer"`
 	CreateAt time.Time `json:"create_at"`

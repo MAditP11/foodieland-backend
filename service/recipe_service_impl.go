@@ -17,7 +17,7 @@ type RecipeServiceImpl struct {
 	Validate *validator.Validate
 }
 
-func NewRecipeServiceImpl(recipeRepository repository.RecipeRepository, DB *sql.DB, validate *validator.Validate) *RecipeServiceImpl {
+func NewRecipeServiceImpl(recipeRepository repository.RecipeRepository, DB *sql.DB, validate *validator.Validate) RecipeService {
 	return &RecipeServiceImpl{
 		RecipeRepository: recipeRepository,
 		DB: DB,
@@ -25,7 +25,7 @@ func NewRecipeServiceImpl(recipeRepository repository.RecipeRepository, DB *sql.
 	}
 }
 
-func (service *RecipeServiceImpl) Create(ctx context.Context, req web.RecipeCreateRequest) web.RecipeResponse {
+func (service *RecipeServiceImpl) Create(ctx context.Context, req web.RecipeCreateRequest) (web.RecipeResponse, error) {
 	if err := service.Validate.Struct(req); err != nil {
 		panic(err)
 	}
@@ -59,34 +59,18 @@ func (service *RecipeServiceImpl) Create(ctx context.Context, req web.RecipeCrea
 		},
 		MainDish:req.MainDish,
 		Sauce: req.Sauce,
-		Directions: req.Directions, 
+		Directions: helper.ToDomainDirections(req.Directions), 
 		IsLike: req.IsLike,
 		Writer:req.Writer,
-		CreateAt:   req.CreateAt,
 	}
 
 	recipe, err = service.RecipeRepository.Create(ctx, tx, recipe)
 	
 	// Return response
-    return web.RecipeResponse{
-        Id:   uint(recipe.Id),
-        Name: recipe.Name,
-        Description: recipe.Description,
-        Img: recipe.Img,
-        PrepTime: recipe.PrepTime,
-        CookTime: recipe.CookTime,
-        Category: recipe.Category,
-        Nutrition: recipe.Nutrition,
-        MainDish: recipe.MainDish,
-        Sauce: recipe.Sauce,
-        Directions: recipe.Directions,
-        IsLike: recipe.IsLike,
-        Writer: recipe.Writer,
-        CreateAt: recipe.CreateAt,
-    }
+    return helper.ToRecipeResponse(recipe),nil
 }
 
-func (service *RecipeServiceImpl) Update(ctx context.Context, req web.RecipeUpdateRequest) web.RecipeResponse {
+func (service *RecipeServiceImpl) Update(ctx context.Context, id int, req web.RecipeUpdateRequest) (web.RecipeResponse,error) {
 	if err := service.Validate.Struct(req); err != nil {
 		panic(err)
 	}
@@ -103,7 +87,7 @@ func (service *RecipeServiceImpl) Update(ctx context.Context, req web.RecipeUpda
 		}
 	}()
 
-	recipe, err := service.RecipeRepository.GetById(ctx, tx, req.Id)
+	recipe, err := service.RecipeRepository.GetById(ctx, tx, id)
 	if err != nil {
 		panic(err)
 	}
@@ -115,75 +99,176 @@ func (service *RecipeServiceImpl) Update(ctx context.Context, req web.RecipeUpda
 	recipe.CookTime=req.CookTime 
 	recipe.Category=req.Category 
 
-	recipe.Nutrition = domain.Nutrition{
-		Calories:     req.Nutrition.Calories,
-		TotalFat:     req.Nutrition.TotalFat,
-		Protein:      req.Nutrition.Protein,
-		Carbohydrate: req.Nutrition.Carbohydrate,
-		Cholesterol:  req.Nutrition.Cholesterol,
-		Description:  req.Nutrition.Description,
-	}
+	recipe.Nutrition.Calories = req.Nutrition.Calories
+	recipe.Nutrition.TotalFat=     req.Nutrition.TotalFat
+	recipe.Nutrition.Protein=      req.Nutrition.Protein
+	recipe.Nutrition.Carbohydrate= req.Nutrition.Carbohydrate
+	recipe.Nutrition.Cholesterol=  req.Nutrition.Cholesterol
+	recipe.Nutrition.Description=  req.Nutrition.Description
 	recipe.MainDish=req.MainDish
 	recipe.Sauce= req.Sauce
-	recipe.Directions= req.Directions 
+	recipe.Directions= helper.ToDomainDirections(req.Directions) 
 	recipe.IsLike= req.IsLike
 	recipe.Writer=req.Writer
 	//Save Update
 	recipe, err = service.RecipeRepository.Update(ctx, tx, recipe)
 
-	return web.RecipeResponse{
-        Id:   uint(recipe.Id),
-        Name: recipe.Name,
-        Description: recipe.Description,
-        Img: recipe.Img,
-        PrepTime: recipe.PrepTime,
-        CookTime: recipe.CookTime,
-        Category: recipe.Category,
-        Nutrition: recipe.Nutrition,
-        MainDish: recipe.MainDish,
-        Sauce: recipe.Sauce,
-        Directions: recipe.Directions,
-        IsLike: recipe.IsLike,
-        Writer: recipe.Writer,
+	return helper.ToRecipeResponse(recipe),nil
+}
+
+func (service *RecipeServiceImpl) Patch(
+    ctx context.Context,
+    recipeId int,
+    req web.RecipePatchRequest,
+) (web.RecipeResponse, error) {
+
+    tx, err := service.DB.Begin()
+    if err != nil {
+        return web.RecipeResponse{}, err
     }
+
+    defer func() {
+        if r := recover(); r != nil {
+            tx.Rollback()
+        } else {
+            tx.Commit()
+        }
+    }()
+
+    recipe, err := service.RecipeRepository.GetById(ctx, tx, recipeId)
+    if err != nil {
+        return web.RecipeResponse{}, err
+    }
+
+    // contoh patch
+    if req.Name != nil {
+        recipe.Name = *req.Name
+    }
+
+    if req.Description != nil {
+        recipe.Description = *req.Description
+    }
+
+	if req.Img != nil {
+        recipe.Img = *req.Img
+    }
+
+	if req.PrepTime != nil {
+        recipe.PrepTime = *req.PrepTime
+    }
+
+	if req.CookTime != nil {
+        recipe.CookTime = *req.CookTime
+    }
+
+	if req.Category != nil {
+        recipe.Category = *req.Category
+    }
+	if req.Nutrition.Calories != nil {
+        recipe.Nutrition.Calories = *req.Nutrition.Calories
+    }
+
+	if req.Nutrition.TotalFat != nil {
+        recipe.Nutrition.TotalFat = *req.Nutrition.TotalFat
+    }
+
+	if req.Nutrition.Protein != nil {
+        recipe.Nutrition.Protein = *req.Nutrition.Protein
+    }
+	if req.Nutrition.Carbohydrate != nil {
+        recipe.Nutrition.Carbohydrate = *req.Nutrition.Carbohydrate
+    }
+
+	if req.Nutrition.Cholesterol != nil {
+        recipe.Nutrition.Cholesterol = *req.Nutrition.Cholesterol
+    }
+	if req.Nutrition.Description != nil {
+        recipe.Nutrition.Description = *req.Nutrition.Description
+    }
+
+	if req.MainDish != nil {
+        recipe.MainDish = *req.MainDish
+    }
+
+	if req.Sauce != nil {
+        recipe.Sauce = *req.Sauce
+    }
+
+	if req.Directions != nil {
+        recipe.Directions = helper.PatchToDirection(*req.Directions) 
+    }
+
+    recipe, err = service.RecipeRepository.Update(ctx, tx, recipe)
+    if err != nil {
+        return web.RecipeResponse{}, err
+    }
+
+    return helper.ToRecipeResponse(recipe), nil
 }
 
-func (service *RecipeServiceImpl) Delete(ctx context.Context, RecipeId int) {
+
+
+func (service *RecipeServiceImpl) Delete(ctx context.Context, recipeId int) error {
 	tx, err := service.DB.Begin()
 	helper.PanicIfErr(err)
-	defer helper.CommitOrRollback(tx)
+	defer func() {
+		if err := recover(); err != nil {
+			tx.Rollback()
+			panic(err)
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	Recipe, err := service.RecipeRepository.GetById(ctx, tx, recipeId)
+	if err != nil {
+		return err
+	}
+
+	service.RecipeRepository.Delete(ctx, tx, Recipe.Id)
+	return nil
+}
+
+func (service *RecipeServiceImpl) GetById(ctx context.Context, RecipeId int) (web.RecipeResponse,error) {
+	tx, err := service.DB.Begin()
+	helper.PanicIfErr(err)
+	defer func() {
+		if err := recover(); err != nil {
+			tx.Rollback()
+			panic(err)
+		} else {
+			tx.Commit()
+		}
+	}()
 
 	Recipe, err := service.RecipeRepository.GetById(ctx, tx, RecipeId)
 	if err != nil {
-		panic(exception.NotFoundErrHandler(err.Error()))
+		panic(err.Error())
 	}
 
-	service.RecipeRepository.Delete(ctx, tx, Recipe)
+	return helper.ToRecipeResponse(Recipe),nil
 }
 
-func (service *RecipeServiceImpl) GetById(ctx context.Context, RecipeId int) web.RecipeResponse {
+func (service *RecipeServiceImpl) GetAll(ctx context.Context) ([]web.RecipeResponse,error) {
 	tx, err := service.DB.Begin()
 	helper.PanicIfErr(err)
-	defer helper.CommitOrRollback(tx)
+	defer func() {
+		if err := recover(); err != nil {
+			tx.Rollback()
+			panic(err)
+		} else {
+			tx.Commit()
+		}
+	}()
 
-	Recipe, err := service.RecipeRepository.GetById(ctx, tx, RecipeId)
+	recipe, err := service.RecipeRepository.GetAll(ctx, tx)
 	if err != nil {
-		panic(exception.NotFoundErrHandler(err.Error()))
+		panic(err.Error())
 	}
-
-	return helper.ToRecipeResponse(Recipe)
-}
-
-func (service *RecipeServiceImpl) GetAll(ctx context.Context) []web.RecipeResponse {
-	tx, err := service.DB.Begin()
-	helper.PanicIfErr(err)
-	defer helper.CommitOrRollback(tx)
-
-	categories := service.RecipeRepository.GetAll(ctx, tx)
 
 	var RecipeResponses []web.RecipeResponse
-	for _, Recipe := range categories {
+	for _, Recipe := range recipe {
 		RecipeResponses = append(RecipeResponses, helper.ToRecipeResponse(Recipe))
 	}
-	return RecipeResponses
+	return RecipeResponses,nil
 }

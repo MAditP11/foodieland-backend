@@ -3,12 +3,12 @@ package domain
 import "time"
 
 type Nutrition struct {
-	Calories string `json:"calories" validate:"required"`
-	TotalFat string `json:"total_fat" validate:"required"`
-	Protein string `json:"protein" validate:"required"`
-	Carbohydrate string `json:"carbohydrate" validate:"required"`
-	Cholesterol string `json:"cholesterol" validate:"required"`
-	Description string `json:"description" validate:"required"`
+	Calories string 
+	TotalFat string 
+	Protein string 
+	Carbohydrate string 
+	Cholesterol string 
+	Description string 
 }
 
 type Direction struct {
@@ -50,12 +50,12 @@ type RecipePatch struct {
 }
 
 type NutritionPatch struct {
-	Calories *string `json:"calories"`
-	TotalFat *string `json:"total_fat"`
-	Protein *string `json:"protein"`
-	Carbohydrate *string `json:"carbohydrate"`
-	Cholesterol *string `json:"cholesterol"`
-	Description *string `json:"description"`
+	Calories *string 
+	TotalFat *string 
+	Protein *string 
+	Carbohydrate *string 
+	Cholesterol *string 
+	Description *string 
 }
 
 type DirectionPatch struct {
