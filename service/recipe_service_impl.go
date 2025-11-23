@@ -118,7 +118,6 @@ func (service *RecipeServiceImpl) Update(ctx context.Context, id uint, req web.R
 
 func (service *RecipeServiceImpl) Patch(
     ctx context.Context,
-	id uint,
     req web.RecipePatchRequest,
 ) (web.RecipeResponse, error) {
 
@@ -135,7 +134,7 @@ func (service *RecipeServiceImpl) Patch(
         }
     }()
 
-    recipe, err := service.RecipeRepository.GetById(ctx, tx, id)
+    recipe, err := service.RecipeRepository.GetById(ctx, tx, *req.Id)
     if err != nil {
         return web.RecipeResponse{}, err
     }

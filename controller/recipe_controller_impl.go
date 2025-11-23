@@ -23,48 +23,100 @@ func NewRecipeControllerImpl (recipeService service.RecipeService) RecipeControl
 func (controller RecipeControllerImpl) Create(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	recipeCreateReq := web.RecipeCreateRequest{}
 
-	_ = json.NewDecoder(r.Body).Decode(&recipeCreateReq)
+	err := json.NewDecoder(r.Body).Decode(&recipeCreateReq)
+	if err != nil {
+		helper.WriteJSON(w,http.StatusBadRequest,web.ErrorResponse{
+            Message: "Invalid JSON: " + err.Error(),
+        })
+        return
+	}
 
-	recipeResponse, _ := controller.RecipeService.Create(r.Context(), recipeCreateReq)
+	recipeResponse, err := controller.RecipeService.Create(r.Context(), recipeCreateReq)
+	if err != nil {
+		helper.WriteJSON(w,http.StatusBadRequest,web.ErrorResponse{
+            Message: err.Error(),
+        })
+        return
+	}
 
-	helper.WriteJSON(w, 200, recipeResponse)
+	helper.WriteJSON(w, http.StatusOK, recipeResponse)
 }
 
 func (controller RecipeControllerImpl) Update(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	id := helper.ParseID(params)
 	recipeUpdateReq := web.RecipeUpdateRequest{}
-	_ = json.NewDecoder(r.Body).Decode(&recipeUpdateReq)
+	err := json.NewDecoder(r.Body).Decode(&recipeUpdateReq)
+	if err != nil {
+		helper.WriteJSON(w,http.StatusBadRequest,web.ErrorResponse{
+            Message: "Invalid JSON: " + err.Error(),
+        })
+        return
+	}
 	recipeUpdateReq.Id = id
 
-	recipeResponse,_ := controller.RecipeService.Update(r.Context(), id, recipeUpdateReq)
-	helper.WriteJSON(w,200,recipeResponse)
+	recipeResponse,err := controller.RecipeService.Update(r.Context(), id, recipeUpdateReq)
+	if err != nil {
+		helper.WriteJSON(w,http.StatusBadRequest,web.ErrorResponse{
+            Message: err.Error(),
+        })
+        return
+	}
+	helper.WriteJSON(w,http.StatusOK,recipeResponse)
 }
 
 func (controller RecipeControllerImpl) Patch(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 
 	id := helper.ParseID(params)
 	recipePatchReq := web.RecipePatchRequest{}
-	_ = json.NewDecoder(r.Body).Decode(&recipePatchReq)
-	recipePatchReq.Id = id
+	if err := json.NewDecoder(r.Body).Decode(&recipePatchReq); err != nil {
+		helper.WriteJSON(w,http.StatusBadRequest,web.ErrorResponse{
+            Message: "Invalid JSON: " + err.Error(),
+        })
+        return
+	}
+	recipePatchReq.Id = &id
 
-	recipeResponse,_ := controller.RecipeService.Patch(r.Context(), id, recipePatchReq)
-	helper.WriteJSON(w,200,recipeResponse)
+	recipeResponse,err := controller.RecipeService.Patch(r.Context(), recipePatchReq)
+	if err != nil {
+		helper.WriteJSON(w,http.StatusBadRequest,web.ErrorResponse{
+            Message: err.Error(),
+        })
+        return
+	}
+	helper.WriteJSON(w,http.StatusOK,recipeResponse)
 }
 
 func (controller RecipeControllerImpl) Delete(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	id := helper.ParseID(params)
 
-	controller.RecipeService.Delete(r.Context(), id)
-	helper.WriteJSON(w,200,nil)
+	if err :=controller.RecipeService.Delete(r.Context(), id); err != nil {
+		helper.WriteJSON(w,http.StatusBadRequest,web.ErrorResponse{
+            Message: err.Error(),
+        })
+        return
+	}
+	helper.WriteJSON(w,http.StatusOK,nil)
 }
 
 func (controller RecipeControllerImpl) GetById(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	id := helper.ParseID(params)
-	recipeResponse,_ := controller.RecipeService.GetById(r.Context(), id)
-	helper.WriteJSON(w,200,recipeResponse)
+	recipeResponse,err := controller.RecipeService.GetById(r.Context(), id)
+	if err != nil {
+		helper.WriteJSON(w,http.StatusBadRequest,web.ErrorResponse{
+            Message: err.Error(),
+        })
+        return
+	}
+	helper.WriteJSON(w,http.StatusOK,recipeResponse)
 }
 
 func (controller RecipeControllerImpl) GetAll(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	recipeResponses,_ := controller.RecipeService.GetAll(r.Context())
-	helper.WriteJSON(w,200,recipeResponses)
+	recipeResponses,err := controller.RecipeService.GetAll(r.Context())
+	if err != nil {
+		helper.WriteJSON(w,http.StatusBadRequest,web.ErrorResponse{
+            Message: err.Error(),
+        })
+        return
+	}
+	helper.WriteJSON(w,http.StatusOK,recipeResponses)
 }
