@@ -192,7 +192,7 @@ func (repo *RecipeRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, recipe
 }
 
 func (repo *RecipeRepositoryImpl) GetById(ctx context.Context, tx *sql.Tx, recipeId uint) (domain.Recipe, error) {
-	SQL := "select id,title,description,image,prep_time,cook_time,category,nutrition,main_dish,sauce,directions,islike,writer,create_at from recipe where id = ?"
+	SQL := "select id,title,description,image,prep_time,cook_time,category,nutrition,main_dish,sauce,directions,is_like,writer,create_at from recipe where id = ?"
 	rows, err := tx.QueryContext(ctx, SQL, recipeId)
 	if err != nil {
 		return domain.Recipe{}, err
@@ -201,8 +201,8 @@ func (repo *RecipeRepositoryImpl) GetById(ctx context.Context, tx *sql.Tx, recip
 	recipe := domain.Recipe{}
 	if rows.Next() {
 		var nutritionStr,mainDishStr,sauceStr,directionStr string
-		
-		if err := rows.Scan(&recipe.Id,&recipe.Title,&recipe.Description,&recipe.Image,&recipe.PrepTime,&recipe.CookTime,&recipe.Category,&nutritionStr,&mainDishStr,&sauceStr,&directionStr,&recipe.IsLike,&recipe.Writer,&recipe.CreateAt); err != nil{
+		var createAt sql.NullTime
+		if err := rows.Scan(&recipe.Id,&recipe.Title,&recipe.Description,&recipe.Image,&recipe.PrepTime,&recipe.CookTime,&recipe.Category,&nutritionStr,&mainDishStr,&sauceStr,&directionStr,&recipe.IsLike,&recipe.Writer,&createAt); err != nil{
 			if errors.Is(err, sql.ErrNoRows) {
 				panic(exception.NewNotFoundErr("recipe not found"))
 			}
@@ -228,7 +228,7 @@ func (repo *RecipeRepositoryImpl) GetById(ctx context.Context, tx *sql.Tx, recip
 }
 
 func (repo *RecipeRepositoryImpl) GetAll(ctx context.Context, tx *sql.Tx) ([]domain.Recipe,error) {
-	SQL := "select id,title,description,image,prep_time,cook_time,category,nutrition,main_dish,sauce,directions,islike,writer,create_at from recipe"
+	SQL := "select id,title,description,image,prep_time,cook_time,category,nutrition,main_dish,sauce,directions,is_like,writer,create_at from recipe"
 	rows, err := tx.QueryContext(ctx, SQL)
 	helper.PanicIfErr(err)
 
@@ -237,8 +237,8 @@ func (repo *RecipeRepositoryImpl) GetAll(ctx context.Context, tx *sql.Tx) ([]dom
 	for rows.Next() {
 		recipe := domain.Recipe{}
 		var nutritionStr,mainDishStr,sauceStr,directionStr string
-		
-		if err := rows.Scan(&recipe.Id,&recipe.Title,&recipe.Description,&recipe.Image,&recipe.PrepTime,&recipe.CookTime,&recipe.Category,&nutritionStr,&mainDishStr,&sauceStr,&directionStr,&recipe.IsLike,&recipe.Writer,&recipe.CreateAt); err != nil {
+		var createAt sql.NullTime
+		if err := rows.Scan(&recipe.Id,&recipe.Title,&recipe.Description,&recipe.Image,&recipe.PrepTime,&recipe.CookTime,&recipe.Category,&nutritionStr,&mainDishStr,&sauceStr,&directionStr,&recipe.IsLike,&recipe.Writer,&createAt); err != nil {
 			return nil, err
 		}
 		if err:=helper.ScanJson(nutritionStr,&recipe.Nutrition); err != nil {

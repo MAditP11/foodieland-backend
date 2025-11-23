@@ -18,4 +18,5 @@ type RecipeCreateRequest struct {
 	IsLike bool `json:"is_like"`
 	Writer string `json:"writer" validate:"required"`
 	CreateAt time.Time `json:"create_at"`
+
 }
