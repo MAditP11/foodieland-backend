@@ -43,9 +43,9 @@ func (service *RecipeServiceImpl) Create(ctx context.Context, req web.RecipeCrea
 	}()
 
 	recipe := domain.Recipe{
-		Name: req.Name,
+		Title: req.Title,
 		Description: req.Description, 
-		Img: req.Img, 
+		Image: req.Image, 
 		PrepTime:req.PrepTime, 
 		CookTime:req.CookTime, 
 		Category:req.Category, 
@@ -92,9 +92,9 @@ func (service *RecipeServiceImpl) Update(ctx context.Context, id uint, req web.R
 		panic(err)
 	}
 
-	recipe.Name = req.Name
+	recipe.Title = req.Title
 	recipe.Description= req.Description 
-	recipe.Img= req.Img 
+	recipe.Image= req.Image 
 	recipe.PrepTime=req.PrepTime 
 	recipe.CookTime=req.CookTime 
 	recipe.Category=req.Category 
@@ -140,16 +140,16 @@ func (service *RecipeServiceImpl) Patch(
     }
 
     // contoh patch
-    if req.Name != nil {
-        recipe.Name = *req.Name
+    if req.Title != nil {
+        recipe.Title = *req.Title
     }
 
     if req.Description != nil {
         recipe.Description = *req.Description
     }
 
-	if req.Img != nil {
-        recipe.Img = *req.Img
+	if req.Image != nil {
+        recipe.Image = *req.Image
     }
 
 	if req.PrepTime != nil {

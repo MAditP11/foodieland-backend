@@ -2,9 +2,9 @@ package web
 
 type RecipePatchRequest struct {
 	Id *uint `json:"-"`
-	Name *string `json:"name"`
+	Title *string `json:"title"`
 	Description *string `json:"description"`
-	Img *string `json:"img"`
+	Image *string `json:"image"`
 	PrepTime *string `json:"prep_time"`
 	CookTime *string `json:"cook_time"`
 	Category *string `json:"category"`

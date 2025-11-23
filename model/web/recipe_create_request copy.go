@@ -5,9 +5,9 @@ import (
 )
 
 type RecipeCreateRequest struct {
-	Name string `json:"name" validate:"required"`
+	Title string `json:"title" validate:"required"`
 	Description string `json:"description" validate:"required"`
-	Img string `json:"img" validate:"required"`
+	Image string `json:"image" validate:"required"`
 	PrepTime string `json:"prep_time" validate:"required"`
 	CookTime string `json:"cook_time" validate:"required"`
 	Category string `json:"category" validate:"required"`

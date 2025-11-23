@@ -14,14 +14,14 @@ type Nutrition struct {
 type Direction struct {
 	Step uint
 	Description string
-	Img string
+	Image string
 }
 
 type Recipe struct {
 	Id int
-	Name string
+	Title string
 	Description string
-	Img string
+	Image string
 	PrepTime string
 	CookTime string
 	Category string
@@ -35,9 +35,9 @@ type Recipe struct {
 }
 
 type RecipePatch struct {
-	Name        *string
+	Title        *string
 	Description *string
-	Img         *string
+	Image         *string
 	PrepTime    *string
 	CookTime    *string
 	Category    *string
@@ -61,5 +61,5 @@ type NutritionPatch struct {
 type DirectionPatch struct {
 	Step *uint
 	Description *string
-	Img *string
+	Image *string
 }

@@ -6,9 +6,9 @@ import (
 
 type RecipeResponse struct {
 	Id uint  `json:"id"`
-	Name string `json:"name"`
+	Title string `json:"title"`
 	Description string `json:"description"`
-	Img string `json:"img"`
+	Image string `json:"image"`
 	PrepTime string `json:"prep_time"`
 	CookTime string `json:"cook_time"`
 	Category string `json:"category"`

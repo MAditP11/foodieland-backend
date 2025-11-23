@@ -11,7 +11,7 @@ func PatchToDirection(req []web.DirectionPatchRequest) []domain.Direction {
         res[i] = domain.Direction{
             Step:        derefUint(d.Step),
             Description: derefString(d.Description),
-            Img:         derefString(d.Img),
+            Image:         derefString(d.Image),
         }
     }
     return res
@@ -34,7 +34,7 @@ func ToDomainDirections(req []web.DirectionRequest) []domain.Direction {
         res[i] = domain.Direction{
             Step:        d.Step,
             Description: d.Description,
-            Img:         d.Img,
+            Image:         d.Image,
         }
     }
     return res

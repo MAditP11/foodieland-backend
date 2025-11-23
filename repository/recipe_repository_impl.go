@@ -20,23 +20,20 @@ func NewRecipeRepositoryImpl() RecipeRepository {
 
 func (repository *RecipeRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, recipe domain.Recipe) (domain.Recipe, error) {
 	SQL := `insert into recipe (
-        name, description, img, prep_time, cook_time, category,
-        calories, total_fat, protein, carbohydrate, cholesterol,
-        description_nutrition, main_dish, sauce, directions,
-        islike, writer, create_at
-    ) value (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+        title, description, image, prep_time, cook_time, category,
+        nutrition, main_dish, sauce, directions,
+        is_like, writer
+    ) value (?,?,?,?,?,?,?,?,?,?,?,?)`
 
+	nutritionDishJson, _ := json.Marshal(recipe.Nutrition)
 	mainDishJson, _ := json.Marshal(recipe.MainDish)
 	sauceJson, _ := json.Marshal(recipe.Sauce)
 	directionJson, _ := json.Marshal(recipe.Directions)
 	
 	result, err := tx.ExecContext(ctx, SQL,
-		recipe.Name, recipe.Description, recipe.Img,
-		recipe.PrepTime, recipe.CookTime, recipe.Category,
-		recipe.Nutrition.Calories, recipe.Nutrition.TotalFat, recipe.Nutrition.Protein,
-		recipe.Nutrition.Carbohydrate, recipe.Nutrition.Cholesterol, recipe.Nutrition.Description,
-		string(mainDishJson), string(sauceJson), string(directionJson),
-		recipe.IsLike, recipe.Writer, recipe.CreateAt,
+		recipe.Title, recipe.Description, recipe.Image,
+		recipe.PrepTime, recipe.CookTime, recipe.Category,string(nutritionDishJson),string(mainDishJson), string(sauceJson), string(directionJson),
+		recipe.IsLike, recipe.Writer,
 	)
 
 	if err != nil {
@@ -56,13 +53,12 @@ func (repository *RecipeRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, 
 func (repository *RecipeRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, recipe domain.Recipe) (domain.Recipe, error) {
 	SQL := `
         UPDATE recipe SET 
-            name = ?, description = ?, img = ?, prep_time = ?, cook_time = ?, 
-            category = ?, calories = ?, total_fat = ?, protein = ?, carbohydrate = ?, 
-            cholesterol = ?, description_nutrition = ?, main_dish = ?, sauce = ?, 
-            directions = ?, islike = ?, writer = ?
+            title = ?, description = ?, image = ?, prep_time = ?, cook_time = ?, 
+            category = ?,nutrition = ?, main_dish = ?, sauce = ?, 
+            directions = ?, is_like = ?, writer = ?
         WHERE id = ?
     `
-
+	nutritionDishJson, _ := json.Marshal(recipe.Nutrition)
 	mainDishJson, _ := json.Marshal(recipe.MainDish)
 	sauceJson, _ := json.Marshal(recipe.Sauce)
 	directionJson, _ := json.Marshal(recipe.Directions)
@@ -70,18 +66,13 @@ func (repository *RecipeRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, 
 	_, err := tx.ExecContext(
 		ctx,
 		SQL,
-		recipe.Name,
+		recipe.Title,
 		recipe.Description,
-		recipe.Img,
+		recipe.Image,
 		recipe.PrepTime,
 		recipe.CookTime,
 		recipe.Category,
-		recipe.Nutrition.Calories,
-		recipe.Nutrition.TotalFat,
-		recipe.Nutrition.Protein,
-		recipe.Nutrition.Carbohydrate,
-		recipe.Nutrition.Cholesterol,
-		recipe.Nutrition.Description,
+		string(nutritionDishJson),
 		string(mainDishJson),
 		string(sauceJson),
 		string(directionJson),
@@ -102,9 +93,9 @@ func (repo *RecipeRepositoryImpl) Patch(ctx context.Context, tx *sql.Tx, recipeI
 	params := []interface{}{}
 	first := true
 
-	if patch.Name != nil {
-		query += addComma(first) + "name = ?"
-		params = append(params, *patch.Name)
+	if patch.Title != nil {
+		query += addComma(first) + "title = ?"
+		params = append(params, *patch.Title)
 		first = false
 	}
 
@@ -114,9 +105,9 @@ func (repo *RecipeRepositoryImpl) Patch(ctx context.Context, tx *sql.Tx, recipeI
 		first = false
 	}
 
-	if patch.Img != nil {
-		query += addComma(first) + "img = ?"
-		params = append(params, *patch.Img)
+	if patch.Image != nil {
+		query += addComma(first) + "image = ?"
+		params = append(params, *patch.Image)
 		first = false
 	}
 
@@ -139,34 +130,10 @@ func (repo *RecipeRepositoryImpl) Patch(ctx context.Context, tx *sql.Tx, recipeI
 	}
 
 	if patch.Nutrition != nil {
-		if patch.Nutrition.Calories != nil {
-			query += addComma(first) + "calories = ?"
-			params = append(params, *patch.Nutrition.Calories)
-			first = false
-		}
-		if patch.Nutrition.TotalFat != nil {
-			query += addComma(first) + "total_fat = ?"
-			params = append(params, *patch.Nutrition.TotalFat)
-			first = false
-		}
-
-		if patch.Nutrition.Carbohydrate != nil {
-			query += addComma(first) + "carbohydrate = ?"
-			params = append(params, *patch.Nutrition.Carbohydrate)
-			first = false
-		}
-
-		if patch.Nutrition.Cholesterol != nil {
-			query += addComma(first) + "cholesterol = ?"
-			params = append(params, *patch.Nutrition.Cholesterol)
-			first = false
-		}
-
-		if patch.Nutrition.Description != nil {
-			query += addComma(first) + "description_nutrition = ?"
-			params = append(params, *patch.Nutrition.Description)
-			first = false
-		}
+		jsonData,_ := json.Marshal(*patch.Nutrition)
+		query += addComma(first) + "nutrition = ?"
+		params = append(params, string(jsonData))
+		first = false
 	}
 
 	if patch.MainDish != nil {
@@ -225,7 +192,7 @@ func (repo *RecipeRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, recipe
 }
 
 func (repo *RecipeRepositoryImpl) GetById(ctx context.Context, tx *sql.Tx, recipeId uint) (domain.Recipe, error) {
-	SQL := "select id,name,description,img,prep_time,cook_time,category,calories,total_fat,protein,carbohydrate,cholesterol,description_nutrition,main_dish,sauce,directions,islike,writer,create_at from recipe where id = ?"
+	SQL := "select id,title,description,image,prep_time,cook_time,category,nutrition,main_dish,sauce,directions,islike,writer,create_at from recipe where id = ?"
 	rows, err := tx.QueryContext(ctx, SQL, recipeId)
 	if err != nil {
 		return domain.Recipe{}, err
@@ -233,13 +200,15 @@ func (repo *RecipeRepositoryImpl) GetById(ctx context.Context, tx *sql.Tx, recip
 	defer rows.Close()
 	recipe := domain.Recipe{}
 	if rows.Next() {
-		var mainDishStr string
-		var sauceStr string
-		var directionStr string
-		if err := rows.Scan(&recipe.Id,&recipe.Name,&recipe.Description,&recipe.Img,&recipe.PrepTime,&recipe.CookTime,&recipe.Category,&recipe.Nutrition.Calories,&recipe.Nutrition.TotalFat,&recipe.Nutrition.Protein,&recipe.Nutrition.Carbohydrate,&recipe.Nutrition.Cholesterol,&recipe.Nutrition.Description,&mainDishStr,&sauceStr,&directionStr,&recipe.IsLike,&recipe.Writer,&recipe.CreateAt); err != nil{
+		var nutritionStr,mainDishStr,sauceStr,directionStr string
+		
+		if err := rows.Scan(&recipe.Id,&recipe.Title,&recipe.Description,&recipe.Image,&recipe.PrepTime,&recipe.CookTime,&recipe.Category,&nutritionStr,&mainDishStr,&sauceStr,&directionStr,&recipe.IsLike,&recipe.Writer,&recipe.CreateAt); err != nil{
 			if errors.Is(err, sql.ErrNoRows) {
 				panic(exception.NewNotFoundErr("recipe not found"))
 			}
+			return recipe,err
+		}
+		if err := json.Unmarshal([]byte(nutritionStr), &recipe.Nutrition); err != nil {
 			return recipe,err
 		}
 		if err := json.Unmarshal([]byte(mainDishStr), &recipe.MainDish); err != nil {
@@ -259,7 +228,7 @@ func (repo *RecipeRepositoryImpl) GetById(ctx context.Context, tx *sql.Tx, recip
 }
 
 func (repo *RecipeRepositoryImpl) GetAll(ctx context.Context, tx *sql.Tx) ([]domain.Recipe,error) {
-	SQL := "select id,name,description,img,prep_time,cook_time,category,calories,total_fat,protein,carbohydrate,cholesterol,description_nutrition,main_dish,sauce,directions,islike,writer,create_at from recipe"
+	SQL := "select id,title,description,image,prep_time,cook_time,category,nutrition,main_dish,sauce,directions,islike,writer,create_at from recipe"
 	rows, err := tx.QueryContext(ctx, SQL)
 	helper.PanicIfErr(err)
 
@@ -267,10 +236,13 @@ func (repo *RecipeRepositoryImpl) GetAll(ctx context.Context, tx *sql.Tx) ([]dom
 	var recipes []domain.Recipe
 	for rows.Next() {
 		recipe := domain.Recipe{}
-		var mainDishStr,sauceStr,directionStr string
+		var nutritionStr,mainDishStr,sauceStr,directionStr string
 		
-		if err := rows.Scan(&recipe.Id,&recipe.Name,&recipe.Description,&recipe.Img,&recipe.PrepTime,&recipe.CookTime,&recipe.Category,&recipe.Nutrition.Calories,&recipe.Nutrition.TotalFat,&recipe.Nutrition.Protein,&recipe.Nutrition.Carbohydrate,&recipe.Nutrition.Cholesterol,&recipe.Nutrition.Description,&mainDishStr,&sauceStr,&directionStr,&recipe.IsLike,&recipe.Writer,&recipe.CreateAt); err != nil {
+		if err := rows.Scan(&recipe.Id,&recipe.Title,&recipe.Description,&recipe.Image,&recipe.PrepTime,&recipe.CookTime,&recipe.Category,&nutritionStr,&mainDishStr,&sauceStr,&directionStr,&recipe.IsLike,&recipe.Writer,&recipe.CreateAt); err != nil {
 			return nil, err
+		}
+		if err:=helper.ScanJson(nutritionStr,&recipe.Nutrition); err != nil {
+			return nil,err
 		}
 		if err:=helper.ScanJson(mainDishStr,&recipe.MainDish); err != nil {
 			return nil,err
