@@ -2,6 +2,7 @@ package exception
 
 import (
 	"encoding/json"
+	"fmt"
 	"foodieland/model/web"
 	"net/http"
 
@@ -36,7 +37,7 @@ func internalServerError(w http.ResponseWriter, r *http.Request, err interface{}
 	webResponse := web.WebResponse{
 		Code:   http.StatusInternalServerError,
 		Status: "INTERNAL SERVER ERROR",
-		Data:   err,
+		Data:   fmt.Sprintf("%v", err),
 	}
 
 	WriteToResponseBody(w, webResponse)

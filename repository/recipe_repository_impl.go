@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"foodieland/exception"
 	"foodieland/helper"
 	"foodieland/model/domain"
 )
@@ -236,6 +237,9 @@ func (repo *RecipeRepositoryImpl) GetById(ctx context.Context, tx *sql.Tx, recip
 		var sauceStr string
 		var directionStr string
 		if err := rows.Scan(&recipe.Id,&recipe.Name,&recipe.Description,&recipe.Img,&recipe.PrepTime,&recipe.CookTime,&recipe.Category,&recipe.Nutrition.Calories,&recipe.Nutrition.TotalFat,&recipe.Nutrition.Protein,&recipe.Nutrition.Carbohydrate,&recipe.Nutrition.Cholesterol,&recipe.Nutrition.Description,&mainDishStr,&sauceStr,&directionStr,&recipe.IsLike,&recipe.Writer,&recipe.CreateAt); err != nil{
+			if errors.Is(err, sql.ErrNoRows) {
+				panic(exception.NewNotFoundErr("recipe not found"))
+			}
 			return recipe,err
 		}
 		if err := json.Unmarshal([]byte(mainDishStr), &recipe.MainDish); err != nil {
