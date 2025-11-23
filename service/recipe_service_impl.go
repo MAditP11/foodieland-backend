@@ -70,7 +70,7 @@ func (service *RecipeServiceImpl) Create(ctx context.Context, req web.RecipeCrea
     return helper.ToRecipeResponse(recipe),nil
 }
 
-func (service *RecipeServiceImpl) Update(ctx context.Context, id int, req web.RecipeUpdateRequest) (web.RecipeResponse,error) {
+func (service *RecipeServiceImpl) Update(ctx context.Context, id uint, req web.RecipeUpdateRequest) (web.RecipeResponse,error) {
 	if err := service.Validate.Struct(req); err != nil {
 		panic(err)
 	}
@@ -118,7 +118,7 @@ func (service *RecipeServiceImpl) Update(ctx context.Context, id int, req web.Re
 
 func (service *RecipeServiceImpl) Patch(
     ctx context.Context,
-    recipeId int,
+	id uint,
     req web.RecipePatchRequest,
 ) (web.RecipeResponse, error) {
 
@@ -135,7 +135,7 @@ func (service *RecipeServiceImpl) Patch(
         }
     }()
 
-    recipe, err := service.RecipeRepository.GetById(ctx, tx, recipeId)
+    recipe, err := service.RecipeRepository.GetById(ctx, tx, id)
     if err != nil {
         return web.RecipeResponse{}, err
     }
@@ -208,7 +208,7 @@ func (service *RecipeServiceImpl) Patch(
 
 
 
-func (service *RecipeServiceImpl) Delete(ctx context.Context, recipeId int) error {
+func (service *RecipeServiceImpl) Delete(ctx context.Context, id uint) error {
 	tx, err := service.DB.Begin()
 	helper.PanicIfErr(err)
 	defer func() {
@@ -220,7 +220,7 @@ func (service *RecipeServiceImpl) Delete(ctx context.Context, recipeId int) erro
 		}
 	}()
 
-	Recipe, err := service.RecipeRepository.GetById(ctx, tx, recipeId)
+	Recipe, err := service.RecipeRepository.GetById(ctx, tx, uint(id))
 	if err != nil {
 		return err
 	}
@@ -229,7 +229,7 @@ func (service *RecipeServiceImpl) Delete(ctx context.Context, recipeId int) erro
 	return nil
 }
 
-func (service *RecipeServiceImpl) GetById(ctx context.Context, RecipeId int) (web.RecipeResponse,error) {
+func (service *RecipeServiceImpl) GetById(ctx context.Context, id uint) (web.RecipeResponse,error) {
 	tx, err := service.DB.Begin()
 	helper.PanicIfErr(err)
 	defer func() {
@@ -241,7 +241,7 @@ func (service *RecipeServiceImpl) GetById(ctx context.Context, RecipeId int) (we
 		}
 	}()
 
-	Recipe, err := service.RecipeRepository.GetById(ctx, tx, RecipeId)
+	Recipe, err := service.RecipeRepository.GetById(ctx, tx, id)
 	if err != nil {
 		panic(err.Error())
 	}

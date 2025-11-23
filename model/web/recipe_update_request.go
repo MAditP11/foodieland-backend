@@ -1,6 +1,7 @@
 package web
 
 type RecipeUpdateRequest struct {
+	Id uint `json:"id" validate:"required"`
 	Name string `json:"name" validate:"required"`
 	Description string `json:"description" validate:"required"`
 	Img string `json:"img" validate:"required"`
