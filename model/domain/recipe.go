@@ -12,7 +12,7 @@ type Nutrition struct {
 }
 
 type Direction struct {
-	Step uint
+	Step int
 	Description string
 	Image string
 }
@@ -59,7 +59,7 @@ type NutritionPatch struct {
 }
 
 type DirectionPatch struct {
-	Step *uint
+	Step *int
 	Description *string
 	Image *string
 }

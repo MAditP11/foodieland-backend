@@ -9,7 +9,7 @@ func PatchToDirection(req []web.DirectionPatchRequest) []domain.Direction {
     res := make([]domain.Direction, len(req))
     for i, d := range req {
         res[i] = domain.Direction{
-            Step:        derefUint(d.Step),
+            Step:        derefInt(d.Step),
             Description: derefString(d.Description),
             Image:         derefString(d.Image),
         }
@@ -17,7 +17,7 @@ func PatchToDirection(req []web.DirectionPatchRequest) []domain.Direction {
     return res
 }
 
-func derefUint(v *uint) uint {
+func derefInt(v *int) int {
     if v == nil { return 0 }
     return *v
 }

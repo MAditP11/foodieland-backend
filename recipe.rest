@@ -9,43 +9,43 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "title": "Spaghetti Bolognese Fake",
-  "description": "Delicious pasta",
-  "image": "Gambar.com",
+  "title": "Ayam Bakar Spesial 2",
+  "description": "Memiliki bumbu spesial yang berbeda dengan yang lain",
+  "image": "image_recipe.png",
   "nutrition": {
-    "calories": "400 kcal",
-    "total_fat": "12g",
-    "protein": "20g",
-    "carbohydrate": "50g",
-    "cholesterol": "0mg",
-    "description": "Low sugar",
-    "vitamin":"C"
+    "calories": "200 kcal",
+    "total_fat": "10g",
+    "protein": "10g",
+    "carbohydrate": "40g",
+    "cholesterol": "10mg",
+    "description": "Memiliki kalori dan protein yang tinggi"
   },
-  "main_dish": ["pasta", "meat"],
-  "sauce": ["tomato", "basil"],
+  "main_dish": ["Ayam Bakar", "Nasi Putih", "Lalapan"],
+  "sauce": ["sambal terasi"],
   "directions": [
-    {"step": 1, "description": "Boil water", "image": ""},
-    {"step": 2, "description": "Cook pasta", "image": ""}
+    {"step_direction": 1, "description_direction": "Siapkan bahan yang dibutuhkan ", "image_direction": ""},
+    {"step_direction": 2, "description_direction": "Bakar ayam dan masak nasi", "image_direction": "image_direction.png"},
+    {"step_direction": 3, "description_direction": "Siap dimakan", "image_direction": ""}
   ],
-  "prep_time": "10 min",
-  "cook_time": "20 min",
-  "category": "Italian",
-  "is_like": true,
-  "writer": "Chef A"
+  "prep_time": "5 min",
+  "cook_time": "25 min",
+  "category": "Indonesian",
+  "is_like": false,
+  "writer": "Chef MAP"
 }
 
 
 ### GET CATEGORIES BY ID
-Get http://localhost:8080/api/recipe/3
+Get http://localhost:8080/api/recipe/11
 Accept: application/json
 
 ### UPDATE CATEGORY BY ID
-PUT    http://localhost:8080/api/recipe/4
+PUT    http://localhost:8080/api/recipe/3
 Accept: application/json
 Content-Type: application/json
 
 {
-    "title": "Spaghetti Bolognese IV",
+    "title": "Spaghetti Bolognese 10",
   "description": "Delicious pasta",
   "image": "GambarIV.com",
   "nutrition": {
@@ -70,18 +70,40 @@ Content-Type: application/json
 }
 
 ### PATCH CATEGORY BY ID
-PATCH     http://localhost:8080/api/recipe/3
-Accept: application/json
-Content-Type: application/json
+PATCH http://localhost:8080/api/recipe/4
+Content-Type: multipart/form-data; boundary=---BOUNDARY
 
-{
-  "title": "Spaghetti Bolognese 100",
-  "nutrition": {
-    "calories":"500 cal",
-    "fat":"4000000 cal"
-  }
-}
+-----BOUNDARY
+Content-Disposition: form-data; name="title"
+
+Nas Goreng Udang
+-----BOUNDARY
+Content-Disposition: form-data; name="directions"
+
+[{"step_direction": 1, "description_direction":"Siapkan bahan yang dibutuhkan", "image":""}]
+
+# -----BOUNDARY
+# Content-Disposition: form-data; name="image"; filename="image_recipe.png"
+# Content-Type: image/png
+
+#< ./image_recipe.png
+-----BOUNDARY--
+
+###
+PATCH http://localhost:8080/api/recipe/3
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+Nasi Gohenggg
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="image_recipe.png"
+Content-Type: image/png
+
+< ./image_recipe.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
 ### DELETE CATEGORY BY ID
-DELETE   http://localhost:8080/api/recipe/1
+DELETE   http://localhost:8080/api/recipe/3
 Accept: application/json

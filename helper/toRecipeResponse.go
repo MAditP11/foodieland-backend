@@ -35,7 +35,7 @@ func ToDirectionsResponse(list []domain.Direction) []web.DirectionResponse {
 
 func ToRecipeResponse(recipe domain.Recipe) web.RecipeResponse {
 	return web.RecipeResponse{
-		Id:   uint(recipe.Id),
+		Id:   int(recipe.Id),
         Title: recipe.Title,
         Description: recipe.Description,
         Image: recipe.Image,

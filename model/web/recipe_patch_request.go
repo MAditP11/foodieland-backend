@@ -1,7 +1,7 @@
 package web
 
 type RecipePatchRequest struct {
-	Id *uint `json:"-"`
+	Id *int `json:"-"`
 	Title *string `json:"title"`
 	Description *string `json:"description"`
 	Image *string `json:"image"`

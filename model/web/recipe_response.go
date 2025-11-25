@@ -5,7 +5,7 @@ import (
 )
 
 type RecipeResponse struct {
-	Id uint  `json:"id"`
+	Id int  `json:"id"`
 	Title string `json:"title"`
 	Description string `json:"description"`
 	Image string `json:"image"`

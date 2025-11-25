@@ -1,0 +1,100 @@
+### CREATE RECIPE
+POST http://localhost:8080/api/recipe
+Content-Type: multipart/form-data; boundary=----BOUNDARY
+
+------BOUNDARY
+Content-Disposition: form-data; name="title"
+
+Ayam Bakar
+------BOUNDARY
+Content-Disposition: form-data; name="description"
+
+Enak banget
+------BOUNDARY
+Content-Disposition: form-data; name="category"
+
+Indonesian
+------BOUNDARY
+Content-Disposition: form-data; name="prep_time"
+
+10 menit
+------BOUNDARY
+Content-Disposition: form-data; name="cook_time"
+
+20 menit
+------BOUNDARY
+Content-Disposition: form-data; name="is_like"
+
+false
+------BOUNDARY
+Content-Disposition: form-data; name="writer"
+
+Adit
+------BOUNDARY
+Content-Disposition: form-data; name="nutrition[calories]"
+
+200
+------BOUNDARY
+Content-Disposition: form-data; name="nutrition[total_fat]"
+
+10g
+------BOUNDARY
+Content-Disposition: form-data; name="nutrition[protein]"
+
+15g
+------BOUNDARY
+Content-Disposition: form-data; name="nutrition[carbohydrate]"
+
+5g
+------BOUNDARY
+Content-Disposition: form-data; name="nutrition[cholesterol]"
+
+0
+------BOUNDARY
+Content-Disposition: form-data; name="nutrition[description]"
+
+Sehat
+------BOUNDARY
+Content-Disposition: form-data; name="main_dish[]"
+
+Ayam
+------BOUNDARY
+Content-Disposition: form-data; name="main_dish[]"
+
+Bawang
+
+------BOUNDARY
+Content-Disposition: form-data; name="sauce[]"
+
+Kecap
+------BOUNDARY
+Content-Disposition: form-data; name="sauce[]"
+
+Sambal
+------BOUNDARY
+Content-Disposition: form-data; name="image"; filename="image_recipe.png"
+Content-Type: image/jpeg
+
+< ./image_recipe.png
+------BOUNDARY
+Content-Disposition: form-data; name="directions[0][step_direction]"
+
+1
+------BOUNDARY
+Content-Disposition: form-data; name="directions[0][description_direction]"
+
+Potong ayam
+------BOUNDARY
+Content-Disposition: form-data; name="directions[0][image_direction]"; filename="image_direction.png"
+Content-Type: image/jpeg
+
+< ./image_direction.png
+------BOUNDARY
+Content-Disposition: form-data; name="directions[1][step_direction]"
+
+2
+------BOUNDARY
+Content-Disposition: form-data; name="directions[1][description_direction]"
+
+Tumis bumbu
+------BOUNDARY--

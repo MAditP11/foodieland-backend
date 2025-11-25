@@ -70,7 +70,7 @@ func (service *RecipeServiceImpl) Create(ctx context.Context, req web.RecipeCrea
     return helper.ToRecipeResponse(recipe),nil
 }
 
-func (service *RecipeServiceImpl) Update(ctx context.Context, id uint, req web.RecipeUpdateRequest) (web.RecipeResponse,error) {
+func (service *RecipeServiceImpl) Update(ctx context.Context, id int, req web.RecipeUpdateRequest) (web.RecipeResponse,error) {
 	if err := service.Validate.Struct(req); err != nil {
 		panic(err)
 	}
@@ -118,6 +118,7 @@ func (service *RecipeServiceImpl) Update(ctx context.Context, id uint, req web.R
 
 func (service *RecipeServiceImpl) Patch(
     ctx context.Context,
+    id int,
     req web.RecipePatchRequest,
 ) (web.RecipeResponse, error) {
 
@@ -134,80 +135,29 @@ func (service *RecipeServiceImpl) Patch(
         }
     }()
 
-    recipe, err := service.RecipeRepository.GetById(ctx, tx, *req.Id)
+    // ubah web -> domain patch object
+    patch := helper.ToRecipePatch(req)
+
+    // eksekusi patch
+    err = service.RecipeRepository.Patch(ctx, tx, id, patch)
     if err != nil {
         return web.RecipeResponse{}, err
     }
 
-    // contoh patch
-    if req.Title != nil {
-        recipe.Title = *req.Title
-    }
-
-    if req.Description != nil {
-        recipe.Description = *req.Description
-    }
-
-	if req.Image != nil {
-        recipe.Image = *req.Image
-    }
-
-	if req.PrepTime != nil {
-        recipe.PrepTime = *req.PrepTime
-    }
-
-	if req.CookTime != nil {
-        recipe.CookTime = *req.CookTime
-    }
-
-	if req.Category != nil {
-        recipe.Category = *req.Category
-    }
-	if req.Nutrition.Calories != nil {
-        recipe.Nutrition.Calories = *req.Nutrition.Calories
-    }
-
-	if req.Nutrition.TotalFat != nil {
-        recipe.Nutrition.TotalFat = *req.Nutrition.TotalFat
-    }
-
-	if req.Nutrition.Protein != nil {
-        recipe.Nutrition.Protein = *req.Nutrition.Protein
-    }
-	if req.Nutrition.Carbohydrate != nil {
-        recipe.Nutrition.Carbohydrate = *req.Nutrition.Carbohydrate
-    }
-
-	if req.Nutrition.Cholesterol != nil {
-        recipe.Nutrition.Cholesterol = *req.Nutrition.Cholesterol
-    }
-	if req.Nutrition.Description != nil {
-        recipe.Nutrition.Description = *req.Nutrition.Description
-    }
-
-	if req.MainDish != nil {
-        recipe.MainDish = *req.MainDish
-    }
-
-	if req.Sauce != nil {
-        recipe.Sauce = *req.Sauce
-    }
-
-	if req.Directions != nil {
-        recipe.Directions = helper.PatchToDirection(*req.Directions) 
-    }
-
-    recipe, err = service.RecipeRepository.Update(ctx, tx, recipe)
+    // get updated recipe
+    updated, err := service.RecipeRepository.GetById(ctx, tx, id)
     if err != nil {
         return web.RecipeResponse{}, err
     }
 
-    return helper.ToRecipeResponse(recipe), nil
+    return helper.ToRecipeResponse(updated), nil
 }
 
 
 
-func (service *RecipeServiceImpl) Delete(ctx context.Context, id uint) error {
+
+
+func (service *RecipeServiceImpl) Delete(ctx context.Context, id int) error {
 	tx, err := service.DB.Begin()
 	helper.PanicIfErr(err)
 	defer func() {
@@ -219,7 +169,7 @@ func (service *RecipeServiceImpl) Delete(ctx context.Context, id uint) error {
 		}
 	}()
 
-	Recipe, err := service.RecipeRepository.GetById(ctx, tx, uint(id))
+	Recipe, err := service.RecipeRepository.GetById(ctx, tx, id)
 	if err != nil {
 		return err
 	}
@@ -228,7 +178,7 @@ func (service *RecipeServiceImpl) Delete(ctx context.Context, id uint) error {
 	return nil
 }
 
-func (service *RecipeServiceImpl) GetById(ctx context.Context, id uint) (web.RecipeResponse,error) {
+func (service *RecipeServiceImpl) GetById(ctx context.Context, id int) (web.RecipeResponse,error) {
 	tx, err := service.DB.Begin()
 	helper.PanicIfErr(err)
 	defer func() {

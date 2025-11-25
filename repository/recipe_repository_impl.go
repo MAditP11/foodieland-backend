@@ -191,7 +191,7 @@ func (repo *RecipeRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, recipe
 	return err
 }
 
-func (repo *RecipeRepositoryImpl) GetById(ctx context.Context, tx *sql.Tx, recipeId uint) (domain.Recipe, error) {
+func (repo *RecipeRepositoryImpl) GetById(ctx context.Context, tx *sql.Tx, recipeId int) (domain.Recipe, error) {
 	SQL := "select id,title,description,image,prep_time,cook_time,category,nutrition,main_dish,sauce,directions,is_like,writer,create_at from recipe where id = ?"
 	rows, err := tx.QueryContext(ctx, SQL, recipeId)
 	if err != nil {
